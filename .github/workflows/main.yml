@@ -20,11 +20,13 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       with:
-        region: us-east-1
         registry: your-registry-url
         username: ${{ secrets.AWS_ACCESS_KEY_ID }}
         password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        
+        mask-password: true
+        registry-type: private
+        skip-logout: false
+
     - name: Build and push Docker image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
