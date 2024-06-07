@@ -21,6 +21,7 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
       with:
         registry-type: public
+        region: us-east-1
 
     - name: Package and push helm chart to Amazon ECR Public
       env:
