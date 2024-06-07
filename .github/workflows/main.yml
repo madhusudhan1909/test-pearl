@@ -19,7 +19,7 @@ jobs:
     - name: Log in to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-       with:
+      with:
         region: us-east-1
         registry: your-registry-url
         username: ${{ secrets.AWS_ACCESS_KEY_ID }}
