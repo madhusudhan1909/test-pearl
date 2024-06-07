@@ -18,8 +18,9 @@ jobs:
 
     - name: Log in to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2  # Use v2 of the action
+      uses: aws-actions/amazon-ecr-login@v1  # Use v2 of the action
       with:
+        region: us-east-1 
         registry: public.ecr.aws/p1o5p7m3/pearl-test  # Public ECR registry URL
         username: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Reference secrets
         password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
