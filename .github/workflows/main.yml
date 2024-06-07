@@ -28,7 +28,7 @@ jobs:
         context: .
         file: ./hello-world-app/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/hello-world-app:latest
+        tags: madhusudhan1909/hello-world-app:latest
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
