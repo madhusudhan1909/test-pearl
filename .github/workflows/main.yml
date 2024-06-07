@@ -16,25 +16,20 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Login to Amazon ECR Public
-      id: login-ecr-public
-      uses: aws-actions/amazon-ecr-login@v2
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2  # Use v2 of the action
       with:
-        registry-type: public
-        region: us-east-1
-
-    - name: Package and push helm chart to Amazon ECR Public
-      env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: my-ecr-public-registry-alias
-          REPOSITORY: my-ecr-public-repo
-      run: |
-          helm package $REPOSITORY
-          helm push $REPOSITORY-0.1.0.tgz oci://$REGISTRY/$REGISTRY_ALIAS
+        registry: public.ecr.aws/p1o5p7m3/pearl-test  # Public ECR registry URL
+        username: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Reference secrets
+        password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        mask-password: true
+        skip-logout: false
+        # Remove the region input as it's not required for v2
 
     - name: Build and push Docker image
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}  # Use output from login step
         ECR_REPOSITORY: hello-world-app
         IMAGE_TAG: ${{ github.sha }}
       run: |
