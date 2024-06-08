@@ -26,9 +26,9 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t hello-node-app .
-          docker tag hello-node-app:latest 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-node-app:latest
-          docker push 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-node-app:latest
+          docker build -t hello-world-app .
+          docker tag hello-world-app:latest 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-world-app:latest
+          docker push 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-world-app:latest
 
       - name: Deploy to ECS
         run: terraform apply -auto-approve
