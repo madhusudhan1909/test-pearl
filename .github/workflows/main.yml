@@ -1,58 +1,37 @@
-name: CI/CD Pipeline
+name: Deploy to ECS
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      # Build the Docker image
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:${{ github.sha }} -f ./hello-world-app/Dockerfile .
-      
-      # Log in to Amazon ECR
-      - name: Log in to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-
-      # Push the Docker image to Amazon ECR
-      - name: Push Docker image to Amazon ECR
-        run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}:${{ github.sha }}
-
   deploy:
-    name: Deploy to AWS ECS/Fargate
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
 
-      - name: Terraform Init
-        run: terraform init
-        working-directory: ./terraform
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Terraform Apply
+      - name: Login to AWS ECR
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 637423462893.public.ecr.aws/q6g9n2l9/pearl-testcom
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t hello-node-app .
+          docker tag hello-node-app:latest 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-node-app:latest
+          docker push 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-node-app:latest
+
+      - name: Deploy to ECS
         run: terraform apply -auto-approve
-        working-directory: ./terraform
         env:
-          TF_VAR_ecr_repository_url: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY_NAME }}
-          TF_VAR_image_tag: ${{ github.sha }}
-
-      # Add steps for other deployment-related tasks
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
