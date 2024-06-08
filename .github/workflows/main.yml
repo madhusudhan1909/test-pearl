@@ -29,7 +29,7 @@ jobs:
 
     - name: Build and push Docker image
       env:
-        ECR_REGISTRY: public.ecr.aws/p1o5p7m3/pearl-test
+        ECR_REGISTRY: public.ecr.aws/q6g9n2l9/pearl-test
         ECR_REPOSITORY: hello-world-app
         IMAGE_TAG: ${{ github.sha }}
       run: |
