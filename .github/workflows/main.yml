@@ -29,12 +29,13 @@ jobs:
 
     - name: Build and push Docker image
       env:
-        ECR_REGISTRY: public.ecr.aws/p1o5p7m3/pearl-test  # Updated to use hardcoded value because login output doesn't provide a registry
+        ECR_REGISTRY: public.ecr.aws/p1o5p7m3/pearl-test
         ECR_REPOSITORY: hello-world-app
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f ./hello-world-app/Dockerfile .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
