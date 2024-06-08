@@ -22,7 +22,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-         cd C:\MADHU DRIVE\Desktop\pearl\hello-world-app
+         cd "C:\MADHU DRIVE\Desktop\pearl\hello-world-app"
          docker build -t public.ecr.aws/q6g9n2l9/pearl-test:latest .
          docker push 637423462893.dkr.ecr.us-east-1.amazonaws.com/pearl-testcom:latest
 
