@@ -6,32 +6,39 @@ on:
       - master
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-
-      - name: Install Dependencies
-        run: npm install
-
       - name: Login to AWS ECR
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 637423462893.public.ecr.aws/q6g9n2l9/pearl-testcom
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 637423462893.dkr.ecr.us-east-1.amazonaws.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t hello-world-app .
-          docker tag hello-world-app:latest 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-world-app:latest
-          docker push 637423462893.dkr.ecr.us-east-1.amazonaws.com/hello-world-app:latest
+          docker build -t 637423462893.dkr.ecr.us-east-1.amazonaws.com/pearl-testcom:latest .
+          docker push 637423462893.dkr.ecr.us-east-1.amazonaws.com/pearl-testcom:latest
 
-      - name: Deploy to ECS
-        run: terraform apply -auto-approve
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve \
+            -var="image_url=637423462893.dkr.ecr.us-east-1.amazonaws.com/pearl-testcom:latest" \
+            -var="subnets=subnet-05fa270580ea5da44,subnet-07026d6cdadb34b73" \
+            -var="security_groups=sg-080632b19e474257b"
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
